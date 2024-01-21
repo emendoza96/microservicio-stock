@@ -5,9 +5,7 @@ public class Unit {
     private Integer id;
     private String description;
 
-    public Unit(String description) {
-        this.description = description;
-    }
+    public Unit() {}
 
     public Integer getId() {
         return id;

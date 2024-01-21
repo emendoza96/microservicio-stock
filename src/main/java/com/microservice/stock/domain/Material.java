@@ -10,12 +10,13 @@ public class Material {
     private Integer stockMin;
     private Unit unit;
 
-    public Material(String name, String description, Double price, Integer currentStock, Integer stockMin) {
+    public Material(String name, String description, Double price, Integer currentStock, Integer stockMin, Unit unit) {
         this.name = name;
         this.description = description;
         this.price = price;
         this.currentStock = currentStock;
         this.stockMin = stockMin;
+        this.unit = unit;
     }
 
     public Integer getId() {

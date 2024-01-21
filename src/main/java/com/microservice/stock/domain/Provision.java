@@ -10,8 +10,9 @@ public class Provision {
 
     private List<ProvisionDetail> detail;
 
-    public Provision(LocalDate provisionDate) {
+    public Provision(LocalDate provisionDate,  List<ProvisionDetail> detail) {
         this.provisionDate = provisionDate;
+        this.detail = detail;
     }
 
     public Integer getId() {
@@ -40,7 +41,7 @@ public class Provision {
 
     @Override
     public String toString() {
-        return "Provision [id=" + id + ", provisionDate=" + provisionDate + "]";
+        return "Provision [id=" + id + ", provisionDate=" + provisionDate + ", detail=" + detail + "]";
     }
 
 }
