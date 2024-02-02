@@ -2,16 +2,40 @@ package com.microservice.stock.domain;
 
 import java.time.Instant;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
+
+
+@Entity
+@Table(name = "stock_movement")
 public class StockMovement {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private Integer inputQuantity;
     private Integer outputQuantity;
     private Instant date;
 
+    @ManyToOne
+    @JoinColumn(name = "material_id")
     private Material material;
+
+    @OneToOne
+    @JoinColumn(name = "provision_detail_id")
     private ProvisionDetail provisionDetail;
+
+    @OneToOne
+    @JoinColumn(name = "order_detail_id")
     private OrderDetail orderDetail;
+
+    public StockMovement() {}
 
     public StockMovement(Integer inputQuantity, Integer outputQuantity, Instant date, Material material) {
         this.inputQuantity = inputQuantity;

@@ -1,14 +1,34 @@
 package com.microservice.stock.domain;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
+@Entity
+@Table(name = "provision")
 public class Provision {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private LocalDate provisionDate;
 
-    private List<ProvisionDetail> detail;
+    @OneToMany(mappedBy = "provision", cascade = CascadeType.ALL)
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+    private List<ProvisionDetail> detail = new ArrayList<>();
+
+    public Provision() {}
 
     public Provision(LocalDate provisionDate,  List<ProvisionDetail> detail) {
         this.provisionDate = provisionDate;
