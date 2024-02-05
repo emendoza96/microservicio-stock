@@ -103,8 +103,7 @@ public class StockMovement {
     @Override
     public String toString() {
         return "StockMovement [id=" + id + ", inputQuantity=" + inputQuantity + ", outputQuantity=" + outputQuantity
-                + ", date=" + date + ", material=" + material + ", provisionDetail=" + provisionDetail
-                + ", orderDetail=" + orderDetail + "]";
+                + ", date=" + date + ", material=" + material + "]";
     }
 
 }

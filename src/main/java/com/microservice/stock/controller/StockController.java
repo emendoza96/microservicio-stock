@@ -4,16 +4,16 @@ import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.microservice.stock.dao.ProvisionRepository;
 import com.microservice.stock.domain.OrderDetail;
 import com.microservice.stock.domain.Provision;
-import com.microservice.stock.domain.ProvisionDetail;
 import com.microservice.stock.domain.StockMovement;
+import com.microservice.stock.service.StockService;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 public class StockController {
 
     @Autowired
-    private ProvisionRepository provisionRepository;
+    private StockService stockService;
 
     @GetMapping("/provision")
     @ApiOperation(value = "Get Provisions")
@@ -41,11 +41,18 @@ public class StockController {
         @ApiResponse(code = 403, message = "Forbidden"),
         @ApiResponse(code = 404, message = "Provisions not found")
     })
-    public List<Provision> getProvisions(
+    public ResponseEntity<List<Provision>> getProvisions(
         @RequestParam(required = false) LocalDate startDate,
         @RequestParam(required = false) LocalDate endDate
     ) {
-        return provisionRepository.findAll();
+
+        try {
+            List<Provision> provisions = stockService.getProvisionsByDates(startDate, endDate);
+            return ResponseEntity.status(200).body(provisions);
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @PostMapping("/provision")
@@ -55,21 +62,17 @@ public class StockController {
         @ApiResponse(code = 401, message = "Not authorized"),
         @ApiResponse(code = 403, message = "Forbidden"),
     })
-    public Provision saveProvision(@RequestBody Provision provision) {
+    public ResponseEntity<Provision> saveProvision(@RequestBody Provision provision) {
 
-        System.err.println(provision);
+        try {
+            Provision newProvision = stockService.createProvision(provision);
+            stockService.createStockMovementByProvisionDetail(provision.getDetail());
 
-        List<ProvisionDetail> provisionDetails = provision.getDetail();
-
-        if (provisionDetails != null) {
-            for (ProvisionDetail provisionDetail : provisionDetails) {
-                provisionDetail.setProvision(provision);
-            }
+            return ResponseEntity.status(201).body(newProvision);
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+            return ResponseEntity.badRequest().build();
         }
-
-        Provision provision2 = provisionRepository.save(provision);
-
-        return provision2;
     }
 
     @GetMapping("/stock-movement")
@@ -80,12 +83,18 @@ public class StockController {
         @ApiResponse(code = 403, message = "Forbidden"),
         @ApiResponse(code = 404, message = "Stock Movements not found")
     })
-    public List<StockMovement> getStockMovements(
+    public ResponseEntity<List<StockMovement>> getStockMovements(
         @RequestParam(required = false) String material,
         @RequestParam(required = false) LocalDate startDate,
         @RequestParam(required = false) LocalDate endDate
     ) {
-        return null;
+        try {
+            List<StockMovement> stockMovements = stockService.getStockMovementsByParams(material, startDate, endDate);
+            return ResponseEntity.status(200).body(stockMovements);
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @PostMapping("/stock-movement/order")
@@ -95,11 +104,16 @@ public class StockController {
         @ApiResponse(code = 401, message = "Not authorized"),
         @ApiResponse(code = 403, message = "Forbidden"),
     })
-    public StockMovement saveStockMovementByOrderDetail(@RequestBody OrderDetail orderDetail) {
+    public ResponseEntity<List<StockMovement>> saveStockMovementByOrderDetail(@RequestBody List<OrderDetail> orderDetails) {
 
-        System.out.println(orderDetail);
+        try {
+            List<StockMovement> stockMovements = stockService.createStockMovementByOrderDetail(orderDetails);
+            return ResponseEntity.status(200).body(stockMovements);
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+            return ResponseEntity.badRequest().build();
+        }
 
-        return null;
     }
 
 }
