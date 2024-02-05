@@ -3,13 +3,16 @@ package com.microservice.stock.controller;
 import java.time.LocalDate;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.microservice.stock.dao.ProvisionRepository;
 import com.microservice.stock.domain.OrderDetail;
 import com.microservice.stock.domain.Provision;
+import com.microservice.stock.domain.ProvisionDetail;
 import com.microservice.stock.domain.StockMovement;
 
 import io.swagger.annotations.ApiOperation;
@@ -27,6 +30,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 @ApiOperation(value = "StockRest")
 public class StockController {
 
+    @Autowired
+    private ProvisionRepository provisionRepository;
 
     @GetMapping("/provision")
     @ApiOperation(value = "Get Provisions")
@@ -40,7 +45,7 @@ public class StockController {
         @RequestParam(required = false) LocalDate startDate,
         @RequestParam(required = false) LocalDate endDate
     ) {
-        return null;
+        return provisionRepository.findAll();
     }
 
     @PostMapping("/provision")
@@ -52,9 +57,19 @@ public class StockController {
     })
     public Provision saveProvision(@RequestBody Provision provision) {
 
-        System.out.println(provision);
+        System.err.println(provision);
 
-        return provision;
+        List<ProvisionDetail> provisionDetails = provision.getDetail();
+
+        if (provisionDetails != null) {
+            for (ProvisionDetail provisionDetail : provisionDetails) {
+                provisionDetail.setProvision(provision);
+            }
+        }
+
+        Provision provision2 = provisionRepository.save(provision);
+
+        return provision2;
     }
 
     @GetMapping("/stock-movement")

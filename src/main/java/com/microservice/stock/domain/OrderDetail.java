@@ -21,9 +21,38 @@ public class OrderDetail {
     @JoinColumn(name = "material_id")
     private Material material;
 
-    // Only Read entity
-
     public OrderDetail() {}
+
+
+    public Integer getId() {
+        return id;
+    }
+
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+
+    public Integer getQuantity() {
+        return quantity;
+    }
+
+
+    public void setQuantity(Integer quantity) {
+        this.quantity = quantity;
+    }
+
+
+    public Material getMaterial() {
+        return material;
+    }
+
+
+    public void setMaterial(Material material) {
+        this.material = material;
+    }
+
 
     @Override
     public String toString() {

@@ -2,6 +2,7 @@ package com.microservice.stock.controller;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.microservice.stock.dao.MaterialRepository;
 import com.microservice.stock.domain.Material;
 
 import io.swagger.annotations.ApiOperation;
@@ -26,6 +28,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 @ApiOperation(value = "MaterialRest")
 public class MaterialController {
 
+    @Autowired
+    private MaterialRepository materialRepository;
+
     @GetMapping()
     @ApiOperation(value = "Get all Materials")
     @ApiResponses(value = {
@@ -35,10 +40,11 @@ public class MaterialController {
         @ApiResponse(code = 404, message = "Materials not found"),
     })
     public List<Material> getAllMaterials() {
-        return null;
+        return materialRepository.findAll();
     }
 
-    @GetMapping("/id/{id}")
+
+    @GetMapping("/{id}")
     @ApiOperation(value = "Get Material by id")
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "Material successfully retrieved"),
@@ -47,8 +53,9 @@ public class MaterialController {
         @ApiResponse(code = 404, message = "Material not found"),
     })
     public Material getMaterial(@PathVariable Integer id) {
-        return null;
+        return materialRepository.findById(id).get();
     }
+
 
     @PostMapping
     @ApiOperation(value = "Create a new Material")
@@ -59,10 +66,11 @@ public class MaterialController {
     })
     public Material saveMaterial(@RequestBody Material material) {
 
-        System.out.println(material);
+        Material material2 = materialRepository.save(material);
 
-        return material;
+        return material2;
     }
+
 
     @PutMapping("/edit/{id}")
     @ApiOperation(value = "Edit Material by id")
@@ -79,6 +87,7 @@ public class MaterialController {
 
         return material;
     }
+
 
     @ApiOperation(value = "Delete Material by id")
     @ApiResponses(value = {

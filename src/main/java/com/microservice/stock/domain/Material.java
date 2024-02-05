@@ -1,5 +1,6 @@
 package com.microservice.stock.domain;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -21,7 +22,7 @@ public class Material {
     private Integer currentStock;
     private Integer stockMin;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "unit_id")
     private Unit unit;
 
