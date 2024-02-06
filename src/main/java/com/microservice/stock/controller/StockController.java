@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -42,8 +43,8 @@ public class StockController {
         @ApiResponse(code = 404, message = "Provisions not found")
     })
     public ResponseEntity<List<Provision>> getProvisions(
-        @RequestParam(required = false) LocalDate startDate,
-        @RequestParam(required = false) LocalDate endDate
+        @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
+        @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate
     ) {
 
         try {
@@ -85,8 +86,8 @@ public class StockController {
     })
     public ResponseEntity<List<StockMovement>> getStockMovements(
         @RequestParam(required = false) String material,
-        @RequestParam(required = false) LocalDate startDate,
-        @RequestParam(required = false) LocalDate endDate
+        @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
+        @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate
     ) {
         try {
             List<StockMovement> stockMovements = stockService.getStockMovementsByParams(material, startDate, endDate);
@@ -108,7 +109,7 @@ public class StockController {
 
         try {
             List<StockMovement> stockMovements = stockService.createStockMovementByOrderDetail(orderDetails);
-            return ResponseEntity.status(200).body(stockMovements);
+            return ResponseEntity.status(201).body(stockMovements);
         } catch (Exception e) {
             System.err.println(e.getMessage());
             return ResponseEntity.badRequest().build();

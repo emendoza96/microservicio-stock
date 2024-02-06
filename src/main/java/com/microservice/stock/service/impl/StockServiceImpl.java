@@ -95,10 +95,8 @@ public class StockServiceImpl implements StockService {
             movement.setProvisionDetail(provisionDetail);
             stockMovements.add(movement);
         }
-        System.out.println(stockMovements.toString());
+
         return stockMovementRepository.saveAll(stockMovements);
     }
-
-
 
 }

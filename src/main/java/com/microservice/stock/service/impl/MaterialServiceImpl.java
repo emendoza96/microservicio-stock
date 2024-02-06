@@ -32,8 +32,9 @@ public class MaterialServiceImpl implements MaterialService {
     }
 
     @Override
-    public void deleteMaterialById(Integer id) {
-        materialRepository.deleteById(id);
+    public Material disableMaterial(Material material) {
+        material.setEnabled(false);
+        return materialRepository.save(material);
     }
 
 }

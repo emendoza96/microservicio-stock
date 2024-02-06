@@ -91,6 +91,7 @@ public class MaterialControllerTest {
             MockMvcRequestBuilders.delete("/api/material/delete/{id}", material_id)
             .contentType(MediaType.APPLICATION_JSON)
         )
-        .andExpect(MockMvcResultMatchers.status().isOk());
+        .andExpect(MockMvcResultMatchers.status().isOk())
+        .andExpect(MockMvcResultMatchers.jsonPath("$.enabled").value(false));
     }
 }

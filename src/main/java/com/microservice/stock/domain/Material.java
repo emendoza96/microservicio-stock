@@ -21,6 +21,7 @@ public class Material {
     private Double price;
     private Integer currentStock;
     private Integer stockMin;
+    private Boolean enabled = true;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "unit_id")
@@ -82,11 +83,18 @@ public class Material {
         this.unit = unit;
     }
 
+    public Boolean getEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(Boolean enabled) {
+        this.enabled = enabled;
+    }
+
     @Override
     public String toString() {
         return "Material [id=" + id + ", name=" + name + ", description=" + description + ", price=" + price
-                + ", currentStock=" + currentStock + ", stockMin=" + stockMin + "]";
+                + ", currentStock=" + currentStock + ", enabled=" + enabled + ", stockMin=" + stockMin + "]";
     }
-
 
 }

@@ -136,12 +136,12 @@ public class MaterialController {
         @ApiResponse(code = 404, message = "Material not found"),
     })
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Object> deleteMaterial(@PathVariable Integer id) {
+    public ResponseEntity<Material> deleteMaterial(@PathVariable Integer id) {
 
         try {
-            materialService.getMaterialById(id).orElseThrow();
-            materialService.deleteMaterialById(id);
-            return ResponseEntity.status(200).build();
+            Material material = materialService.getMaterialById(id).orElseThrow();
+            material = materialService.disableMaterial(material);
+            return ResponseEntity.status(200).body(material);
         }
         catch (NoSuchElementException e) {
             System.err.println(e.getMessage());
