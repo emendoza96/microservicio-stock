@@ -7,6 +7,7 @@ import com.microservice.stock.domain.OrderDetail;
 import com.microservice.stock.domain.Provision;
 import com.microservice.stock.domain.ProvisionDetail;
 import com.microservice.stock.domain.StockMovement;
+import com.microservice.stock.helpers.OrderEventHelper;
 
 public interface StockService {
 
@@ -14,8 +15,9 @@ public interface StockService {
     public Provision createProvision(Provision provision);
     public List<StockMovement> getAllStockMovements();
     public List<StockMovement> getStockMovementsByParams(String material, LocalDate startDate, LocalDate endDate);
-    public List<StockMovement> createStockMovementByOrderDetail(List<OrderDetail> orderDetailS);
+    public List<StockMovement> createStockMovementByOrderDetail(List<OrderDetail> orderDetails);
     public List<StockMovement> createStockMovementByProvisionDetail(List<ProvisionDetail> provisionDetails);
     public Boolean validateProvision(Provision provision);
+    public void createProvisionByOrderEvent(List<OrderEventHelper> orderDetails);
 
 }

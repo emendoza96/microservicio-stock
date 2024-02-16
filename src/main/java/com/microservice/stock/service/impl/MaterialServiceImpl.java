@@ -37,4 +37,14 @@ public class MaterialServiceImpl implements MaterialService {
         return materialRepository.save(material);
     }
 
+    @Override
+    public Boolean checkMaterialHasStockMin(Integer idMaterial, Integer orderQuantity) {
+        try {
+            Material material = materialRepository.findById(idMaterial).orElseThrow();
+            return ( material.getCurrentStock() - orderQuantity ) > material.getStockMin();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
 }

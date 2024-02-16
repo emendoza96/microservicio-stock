@@ -16,6 +16,8 @@ import com.microservice.stock.domain.OrderDetail;
 import com.microservice.stock.domain.Provision;
 import com.microservice.stock.domain.ProvisionDetail;
 import com.microservice.stock.domain.StockMovement;
+import com.microservice.stock.helpers.OrderEventHelper;
+import com.microservice.stock.service.MaterialService;
 import com.microservice.stock.service.StockService;
 
 @Service
@@ -26,6 +28,9 @@ public class StockServiceImpl implements StockService {
 
     @Autowired
     private StockMovementRepository stockMovementRepository;
+
+    @Autowired
+    private MaterialService materialService;
 
     @Override
     public List<Provision> getProvisionsByDates(LocalDate startDate, LocalDate endDate) {
@@ -98,5 +103,31 @@ public class StockServiceImpl implements StockService {
 
         return stockMovementRepository.saveAll(stockMovements);
     }
+
+    @Override
+    public void createProvisionByOrderEvent(List<OrderEventHelper> orderDetails) {
+        List<ProvisionDetail> provisionDetails = new ArrayList<>();
+        Provision provision = new Provision();
+
+        for(OrderEventHelper detail : orderDetails) {
+            if (!materialService.checkMaterialHasStockMin(detail.getIdMaterial(), detail.getQuantity())){
+                ProvisionDetail provisionDetail = new ProvisionDetail();
+                provisionDetail.setMaterial(materialService.getMaterialById(detail.getIdMaterial()).get());
+                provisionDetail.setQuantity(detail.getQuantity());
+                provisionDetail.setProvision(provision);
+
+                provisionDetails.add(provisionDetail);
+            }
+        }
+
+        if (!provisionDetails.isEmpty()){
+            provision.setDetail(provisionDetails);
+            provision.setProvisionDate(LocalDate.now());
+
+            Provision newProvision = provisionRepository.save(provision);
+            createStockMovementByProvisionDetail(newProvision.getDetail());
+        }
+    }
+
 
 }
