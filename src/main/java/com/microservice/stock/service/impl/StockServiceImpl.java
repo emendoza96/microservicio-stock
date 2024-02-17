@@ -10,8 +10,10 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.microservice.stock.dao.OrderDetailRepository;
 import com.microservice.stock.dao.ProvisionRepository;
 import com.microservice.stock.dao.StockMovementRepository;
+import com.microservice.stock.domain.Material;
 import com.microservice.stock.domain.OrderDetail;
 import com.microservice.stock.domain.Provision;
 import com.microservice.stock.domain.ProvisionDetail;
@@ -28,6 +30,9 @@ public class StockServiceImpl implements StockService {
 
     @Autowired
     private StockMovementRepository stockMovementRepository;
+
+    @Autowired
+    private OrderDetailRepository orderDetailRepository;
 
     @Autowired
     private MaterialService materialService;
@@ -110,7 +115,7 @@ public class StockServiceImpl implements StockService {
         Provision provision = new Provision();
 
         for(OrderEventHelper detail : orderDetails) {
-            if (!materialService.checkMaterialHasStockMin(detail.getIdMaterial(), detail.getQuantity())){
+            if (!materialService.checkMaterialHasStockMin(detail.getIdMaterial())){
                 ProvisionDetail provisionDetail = new ProvisionDetail();
                 provisionDetail.setMaterial(materialService.getMaterialById(detail.getIdMaterial()).get());
                 provisionDetail.setQuantity(detail.getQuantity());
@@ -124,9 +129,37 @@ public class StockServiceImpl implements StockService {
             provision.setDetail(provisionDetails);
             provision.setProvisionDate(LocalDate.now());
 
-            Provision newProvision = provisionRepository.save(provision);
-            createStockMovementByProvisionDetail(newProvision.getDetail());
+            provisionRepository.save(provision);
+
+            // The stock movements will be created manually when the provision arrive at the Builder's yard.
+            // createStockMovementByProvisionDetail(newProvision.getDetail());
         }
+    }
+
+    @Override
+    public void updateStock(List<OrderEventHelper> orderDetails) {
+        List<StockMovement> stockMovements = new ArrayList<>();
+
+        for(OrderEventHelper detail : orderDetails) {
+            OrderDetail orderDetail = orderDetailRepository.findById(detail.getIdDetail()).get();
+            Material material = materialService.getMaterialById(detail.getIdMaterial()).get();
+
+            material.setCurrentStock(material.getCurrentStock() - detail.getQuantity());
+
+            StockMovement movement = new StockMovement(
+                0,
+                orderDetail.getQuantity(),
+                Instant.now(),
+                // Update stock and retrieve the material
+                materialService.createMaterial(material)
+            );
+
+            movement.setOrderDetail(orderDetail);
+
+            stockMovements.add(movement);
+        }
+
+        stockMovementRepository.saveAll(stockMovements);
     }
 
 

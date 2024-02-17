@@ -11,6 +11,6 @@ public interface MaterialService {
     public List<Material> getAllMaterials();
     public Optional<Material> getMaterialById(Integer id);
     public Material disableMaterial(Material material);
-    public Boolean checkMaterialHasStockMin(Integer idMaterial, Integer orderQuantity);
+    public Boolean checkMaterialHasStockMin(Integer idMaterial);
 
 }

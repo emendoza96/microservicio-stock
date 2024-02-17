@@ -19,5 +19,6 @@ public interface StockService {
     public List<StockMovement> createStockMovementByProvisionDetail(List<ProvisionDetail> provisionDetails);
     public Boolean validateProvision(Provision provision);
     public void createProvisionByOrderEvent(List<OrderEventHelper> orderDetails);
+    public void updateStock(List<OrderEventHelper> orderDetails);
 
 }

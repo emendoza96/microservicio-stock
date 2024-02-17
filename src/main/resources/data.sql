@@ -4,8 +4,8 @@ INSERT INTO unit (id, description) VALUES (2, 'Unit description 2');
 INSERT INTO material (id, name, description, price, current_stock, stock_min, unit_id) VALUES (1, 'Brick', 'Brick desc', 5.5, 155, 140, 1);
 INSERT INTO material (id, name, description, price, current_stock, stock_min, unit_id) VALUES (2, 'Brick 2', 'Brick desc 2', 8.5, 130, 120, 2);
 
-INSERT INTO order_detail (id, quantity, material_id) VALUES (1, 30, 1);
--- INSERT INTO order_detail (id, quantity, material_id) VALUES (2, 25, 2);
+INSERT INTO order_detail (id, quantity, material_id) VALUES (1, 20, 1);
+INSERT INTO order_detail (id, quantity, material_id) VALUES (2, 50, 2);
 
 INSERT INTO provision (id, provision_date) VALUES (1, '2024-01-21');
 INSERT INTO provision (id, provision_date) VALUES (2, '2023-12-01');

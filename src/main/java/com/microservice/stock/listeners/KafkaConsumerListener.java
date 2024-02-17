@@ -21,7 +21,7 @@ public class KafkaConsumerListener {
 
     private Logger LOGGER = LoggerFactory.getLogger(KafkaConsumerListener.class);
 
-    @KafkaListener(topics = {"test"}, groupId = "stock-service")
+    @KafkaListener(topics = {"builder-yard-orders"}, groupId = "stock-service")
     public void listener(String message){
         OrderEventHelper[] orderDetails0 = JsonUtils.fromJson(message, OrderEventHelper[].class);
 
@@ -29,6 +29,11 @@ public class KafkaConsumerListener {
 
         LOGGER.info("New message received: {}", orderDetails.toString());
 
+        // Update material stocks
+        stockService.updateStock(orderDetails);
+
+        // Create provision if there are materials with stock lower than stockMin after the order.
+        // Otherwise, it doesn't create provision
         stockService.createProvisionByOrderEvent(orderDetails);
     }
 

@@ -38,10 +38,10 @@ public class MaterialServiceImpl implements MaterialService {
     }
 
     @Override
-    public Boolean checkMaterialHasStockMin(Integer idMaterial, Integer orderQuantity) {
+    public Boolean checkMaterialHasStockMin(Integer idMaterial) {
         try {
             Material material = materialRepository.findById(idMaterial).orElseThrow();
-            return ( material.getCurrentStock() - orderQuantity ) > material.getStockMin();
+            return material.getCurrentStock() > material.getStockMin();
         } catch (Exception e) {
             return false;
         }
