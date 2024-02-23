@@ -1,7 +1,6 @@
 package com.microservice.stock.domain;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.CascadeType;
@@ -33,7 +32,7 @@ public class Provision {
 
     @OneToMany(mappedBy = "provision", cascade = CascadeType.ALL)
     @JsonManagedReference
-    private List<ProvisionDetail> detail = new ArrayList<>();
+    private List<ProvisionDetail> detail;
 
     public Integer getId() {
         return id;
