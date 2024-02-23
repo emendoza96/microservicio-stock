@@ -16,9 +16,10 @@ import com.microservice.stock.domain.Provision;
 import com.microservice.stock.domain.StockMovement;
 import com.microservice.stock.service.StockService;
 
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -28,19 +29,19 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
 @RequestMapping("/api/stock")
-@ApiOperation(value = "StockRest")
+@Tag(name = "StockRest")
 public class StockController {
 
     @Autowired
     private StockService stockService;
 
     @GetMapping("/provision")
-    @ApiOperation(value = "Get Provisions")
+    @Operation(summary = "Get Provisions")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Provision successfully retrieved"),
-        @ApiResponse(code = 401, message = "Not authorized"),
-        @ApiResponse(code = 403, message = "Forbidden"),
-        @ApiResponse(code = 404, message = "Provisions not found")
+        @ApiResponse(responseCode = "200", description = "Provision successfully retrieved"),
+        @ApiResponse(responseCode = "401", description = "Not authorized"),
+        @ApiResponse(responseCode = "403", description = "Forbidden"),
+        @ApiResponse(responseCode = "404", description = "Provisions not found")
     })
     public ResponseEntity<List<Provision>> getProvisions(
         @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
@@ -57,11 +58,11 @@ public class StockController {
     }
 
     @PostMapping("/provision")
-    @ApiOperation(value = "Create a new Provision")
+    @Operation(summary = "Create a new Provision")
     @ApiResponses( value = {
-        @ApiResponse(code = 200, message = "New Provision successfully created"),
-        @ApiResponse(code = 401, message = "Not authorized"),
-        @ApiResponse(code = 403, message = "Forbidden"),
+        @ApiResponse(responseCode = "200", description = "New Provision successfully created"),
+        @ApiResponse(responseCode = "401", description = "Not authorized"),
+        @ApiResponse(responseCode = "403", description = "Forbidden"),
     })
     public ResponseEntity<Provision> saveProvision(@RequestBody Provision provision) {
 
@@ -77,12 +78,12 @@ public class StockController {
     }
 
     @GetMapping("/stock-movement")
-    @ApiOperation(value = "Get Stock Movements")
+    @Operation(summary = "Get Stock Movements")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Stock Movement successfully retrieved"),
-        @ApiResponse(code = 401, message = "Not authorized"),
-        @ApiResponse(code = 403, message = "Forbidden"),
-        @ApiResponse(code = 404, message = "Stock Movements not found")
+        @ApiResponse(responseCode = "200", description = "Stock Movement successfully retrieved"),
+        @ApiResponse(responseCode = "401", description = "Not authorized"),
+        @ApiResponse(responseCode = "403", description = "Forbidden"),
+        @ApiResponse(responseCode = "404", description = "Stock Movements not found")
     })
     public ResponseEntity<List<StockMovement>> getStockMovements(
         @RequestParam(required = false) String material,
@@ -99,11 +100,11 @@ public class StockController {
     }
 
     @PostMapping("/stock-movement/order")
-    @ApiOperation(value = "Create a new Stock Movement")
+    @Operation(summary = "Create a new Stock Movement")
     @ApiResponses( value = {
-        @ApiResponse(code = 200, message = "New Stock Movement successfully created"),
-        @ApiResponse(code = 401, message = "Not authorized"),
-        @ApiResponse(code = 403, message = "Forbidden"),
+        @ApiResponse(responseCode = "200", description = "New Stock Movement successfully created"),
+        @ApiResponse(responseCode = "401", description = "Not authorized"),
+        @ApiResponse(responseCode = "403", description = "Forbidden"),
     })
     public ResponseEntity<List<StockMovement>> saveStockMovementByOrderDetail(@RequestBody List<OrderDetail> orderDetails) {
 

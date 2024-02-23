@@ -16,9 +16,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.microservice.stock.domain.Material;
 import com.microservice.stock.service.MaterialService;
 
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import org.springframework.web.bind.annotation.PutMapping;
 
@@ -27,19 +28,19 @@ import org.springframework.web.bind.annotation.PutMapping;
 
 @RestController
 @RequestMapping("/api/material")
-@ApiOperation(value = "MaterialRest")
+@Tag(name = "MaterialRest")
 public class MaterialController {
 
     @Autowired
     private MaterialService materialService;
 
     @GetMapping()
-    @ApiOperation(value = "Get all Materials")
+    @Operation(summary = "Get all Materials")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "All Materials successfully retrieved"),
-        @ApiResponse(code = 401, message = "Not authorized"),
-        @ApiResponse(code = 403, message = "Forbidden"),
-        @ApiResponse(code = 404, message = "Materials not found"),
+        @ApiResponse(responseCode = "200", description = "All Materials successfully retrieved"),
+        @ApiResponse(responseCode = "401", description = "Not authorized"),
+        @ApiResponse(responseCode = "403", description = "Forbidden"),
+        @ApiResponse(responseCode = "404", description = "Materials not found"),
     })
     public ResponseEntity<List<Material>> getAllMaterials() {
 
@@ -54,12 +55,12 @@ public class MaterialController {
 
 
     @GetMapping("/{id}")
-    @ApiOperation(value = "Get Material by id")
+    @Operation(summary = "Get Material by id")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Material successfully retrieved"),
-        @ApiResponse(code = 401, message = "Not authorized"),
-        @ApiResponse(code = 403, message = "Forbidden"),
-        @ApiResponse(code = 404, message = "Material not found"),
+        @ApiResponse(responseCode = "200", description = "Material successfully retrieved"),
+        @ApiResponse(responseCode = "401", description = "Not authorized"),
+        @ApiResponse(responseCode = "403", description = "Forbidden"),
+        @ApiResponse(responseCode = "404", description = "Material not found"),
     })
     public ResponseEntity<Material> getMaterial(@PathVariable Integer id) {
 
@@ -80,11 +81,11 @@ public class MaterialController {
 
 
     @PostMapping
-    @ApiOperation(value = "Create a new Material")
+    @Operation(summary = "Create a new Material")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Material successfully created"),
-        @ApiResponse(code = 401, message = "Not authorized"),
-        @ApiResponse(code = 403, message = "Forbidden"),
+        @ApiResponse(responseCode = "200", description = "Material successfully created"),
+        @ApiResponse(responseCode = "401", description = "Not authorized"),
+        @ApiResponse(responseCode = "403", description = "Forbidden"),
     })
     public ResponseEntity<Material> saveMaterial(@RequestBody Material material) {
 
@@ -100,12 +101,12 @@ public class MaterialController {
 
 
     @PutMapping("/edit/{id}")
-    @ApiOperation(value = "Edit Material by id")
+    @Operation(summary = "Edit Material by id")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Material successfully edited"),
-        @ApiResponse(code = 401, message = "Not authorized"),
-        @ApiResponse(code = 403, message = "Forbidden"),
-        @ApiResponse(code = 404, message = "Material not found"),
+        @ApiResponse(responseCode = "200", description = "Material successfully edited"),
+        @ApiResponse(responseCode = "401", description = "Not authorized"),
+        @ApiResponse(responseCode = "403", description = "Forbidden"),
+        @ApiResponse(responseCode = "404", description = "Material not found"),
     })
     public ResponseEntity<Material> editMaterial(@PathVariable Integer id, @RequestBody Material material) {
 
@@ -128,12 +129,12 @@ public class MaterialController {
     }
 
 
-    @ApiOperation(value = "Delete Material by id")
+    @Operation(summary = "Delete Material by id")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Material successfully deleted"),
-        @ApiResponse(code = 401, message = "Not authorized"),
-        @ApiResponse(code = 403, message = "Forbidden"),
-        @ApiResponse(code = 404, message = "Material not found"),
+        @ApiResponse(responseCode = "200", description = "Material successfully deleted"),
+        @ApiResponse(responseCode = "401", description = "Not authorized"),
+        @ApiResponse(responseCode = "403", description = "Forbidden"),
+        @ApiResponse(responseCode = "404", description = "Material not found"),
     })
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Material> deleteMaterial(@PathVariable Integer id) {
