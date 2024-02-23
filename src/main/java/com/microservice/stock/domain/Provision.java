@@ -11,10 +11,18 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 @Table(name = "provision")
 public class Provision {
 
@@ -26,13 +34,6 @@ public class Provision {
     @OneToMany(mappedBy = "provision", cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<ProvisionDetail> detail = new ArrayList<>();
-
-    public Provision() {}
-
-    public Provision(LocalDate provisionDate,  List<ProvisionDetail> detail) {
-        this.provisionDate = provisionDate;
-        this.detail = detail;
-    }
 
     public Integer getId() {
         return id;

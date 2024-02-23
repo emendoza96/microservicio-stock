@@ -8,8 +8,16 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 @Table(name = "material")
 public class Material {
 
@@ -21,22 +29,11 @@ public class Material {
     private Double price;
     private Integer currentStock;
     private Integer stockMin;
-    private Boolean enabled = true;
+    private Boolean enabled;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "unit_id")
     private Unit unit;
-
-    public Material() {}
-
-    public Material(String name, String description, Double price, Integer currentStock, Integer stockMin, Unit unit) {
-        this.name = name;
-        this.description = description;
-        this.price = price;
-        this.currentStock = currentStock;
-        this.stockMin = stockMin;
-        this.unit = unit;
-    }
 
     public Integer getId() {
         return id;

@@ -7,10 +7,18 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 @Table(name = "provision_detail")
 public class ProvisionDetail {
 
@@ -27,13 +35,6 @@ public class ProvisionDetail {
     @ManyToOne
     @JoinColumn(name = "material_id")
     private Material material;
-
-    public ProvisionDetail() {}
-
-    public ProvisionDetail(Integer quantity, Material material) {
-        this.quantity = quantity;
-        this.material = material;
-    }
 
     public Integer getId() {
         return id;
@@ -66,7 +67,7 @@ public class ProvisionDetail {
 
     @Override
     public String toString() {
-        return "ProvisionDetail [id=" + id + ", quantity=" + quantity + ", provision=" + provision + ", material="
+        return "ProvisionDetail [id=" + id + ", quantity=" + quantity + ", material="
                 + material + "]";
     }
 

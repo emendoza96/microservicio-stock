@@ -10,9 +10,17 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 
 @Entity
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 @Table(name = "stock_movement")
 public class StockMovement {
 
@@ -34,8 +42,6 @@ public class StockMovement {
     @OneToOne
     @JoinColumn(name = "order_detail_id")
     private OrderDetail orderDetail;
-
-    public StockMovement() {}
 
     public StockMovement(Integer inputQuantity, Integer outputQuantity, Instant date, Material material) {
         this.inputQuantity = inputQuantity;

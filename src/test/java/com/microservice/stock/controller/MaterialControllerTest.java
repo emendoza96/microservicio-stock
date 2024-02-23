@@ -1,6 +1,8 @@
 package com.microservice.stock.controller;
 
+
 import org.springframework.http.MediaType;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -27,8 +29,33 @@ public class MaterialControllerTest {
     @Autowired
     private MaterialRepository materialRepository;
 
+    private Material material1;
+    private Material material2;
+
+    @BeforeEach
+    void setUp(){
+        material1 = Material.builder()
+            .name("Brick")
+            .description("Test description")
+            .currentStock(100)
+            .price(5.5d)
+            .unit(new Unit())
+            .build();
+
+        material2 = Material.builder()
+            .name("Brick 2")
+            .description("Test description 2")
+            .currentStock(800)
+            .price(8.5d)
+            .unit(new Unit())
+            .build();
+    }
+
     @Test
     void testGetAllMaterials() throws Exception {
+        materialRepository.save(material1);
+        materialRepository.save(material2);
+
         mockMvc.perform(
             MockMvcRequestBuilders.get("/api/material")
             .contentType(MediaType.APPLICATION_JSON)
@@ -40,6 +67,8 @@ public class MaterialControllerTest {
     @Test
     void testGetMaterial() throws Exception {
         Integer material_id = 1;
+        materialRepository.save(material1);
+        materialRepository.save(material2);
 
         mockMvc.perform(
             MockMvcRequestBuilders.get("/api/material/{id}", material_id)
@@ -51,9 +80,7 @@ public class MaterialControllerTest {
 
     @Test
     void testSaveMaterial() throws Exception {
-        Material material = new Material("test", "test description", 60.5d, 100, 20, new Unit());
-
-        String materialJson = objectMapper.writeValueAsString(material);
+        String materialJson = objectMapper.writeValueAsString(material1);
 
         mockMvc.perform(
             MockMvcRequestBuilders.post("/api/material")
@@ -62,16 +89,18 @@ public class MaterialControllerTest {
         )
         .andExpect(MockMvcResultMatchers.status().isCreated())
         .andExpect(MockMvcResultMatchers.jsonPath("$.id").isNumber())
-        .andExpect(MockMvcResultMatchers.jsonPath("$.name").value(material.getName()));
+        .andExpect(MockMvcResultMatchers.jsonPath("$.name").value(material1.getName()));
     }
 
     @Test
     void testEditMaterial() throws Exception {
-        Integer material_id = 1;
-        Material material = materialRepository.findById(material_id).orElseThrow();
-        material.setCurrentStock(200);
+        Material materialSaved = materialRepository.save(material1);
+        Integer material_id = materialSaved.getId();
 
-        String materialJson = objectMapper.writeValueAsString(material);
+        // Change current stock
+        materialSaved.setCurrentStock(200);
+
+        String materialJson = objectMapper.writeValueAsString(materialSaved);
 
         mockMvc.perform(
             MockMvcRequestBuilders.put("/api/material/edit/{id}", material_id)
@@ -79,14 +108,17 @@ public class MaterialControllerTest {
             .content(materialJson)
         )
         .andExpect(MockMvcResultMatchers.status().isOk())
-        .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(material.getId()))
-        .andExpect(MockMvcResultMatchers.jsonPath("$.currentStock").value(material.getCurrentStock()));
+        .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(materialSaved.getId()))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.currentStock").value(materialSaved.getCurrentStock()));
 
     }
 
     @Test
     void testDeleteMaterial() throws Exception {
         Integer material_id = 2;
+        materialRepository.save(material1);
+        materialRepository.save(material2);
+
         mockMvc.perform(
             MockMvcRequestBuilders.delete("/api/material/delete/{id}", material_id)
             .contentType(MediaType.APPLICATION_JSON)
