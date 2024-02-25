@@ -10,11 +10,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microservice.stock.dao.MaterialRepository;
 import com.microservice.stock.domain.Material;
 import com.microservice.stock.domain.Unit;
+import com.microservice.stock.security.filters.MockJwtAuthorizationFilter;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -29,6 +31,9 @@ public class MaterialControllerTest {
     @Autowired
     private MaterialRepository materialRepository;
 
+    @Autowired
+    private MaterialController materialController;
+
     private Material material1;
     private Material material2;
 
@@ -40,7 +45,8 @@ public class MaterialControllerTest {
             .currentStock(100)
             .price(5.5d)
             .unit(new Unit())
-            .build();
+            .build()
+        ;
 
         material2 = Material.builder()
             .name("Brick 2")
@@ -48,7 +54,13 @@ public class MaterialControllerTest {
             .currentStock(800)
             .price(8.5d)
             .unit(new Unit())
-            .build();
+            .build()
+        ;
+
+        mockMvc = MockMvcBuilders.standaloneSetup(materialController)
+            .addFilters(new MockJwtAuthorizationFilter())
+            .build()
+        ;
     }
 
     @Test
@@ -60,6 +72,7 @@ public class MaterialControllerTest {
             MockMvcRequestBuilders.get("/api/material")
             .contentType(MediaType.APPLICATION_JSON)
         )
+        .andExpect(MockMvcResultMatchers.status().isOk())
         .andExpect(MockMvcResultMatchers.jsonPath("$.[0].id").isNumber())
         .andExpect(MockMvcResultMatchers.jsonPath("$.[0].name").isString());
     }

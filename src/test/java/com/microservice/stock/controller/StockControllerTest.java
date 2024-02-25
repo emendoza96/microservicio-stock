@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -13,6 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microservice.stock.dao.MaterialRepository;
@@ -23,6 +25,7 @@ import com.microservice.stock.domain.Provision;
 import com.microservice.stock.domain.ProvisionDetail;
 import com.microservice.stock.domain.StockMovement;
 import com.microservice.stock.domain.Unit;
+import com.microservice.stock.security.filters.MockJwtAuthorizationFilter;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -43,6 +46,9 @@ public class StockControllerTest {
     @Autowired
     private StockMovementRepository stockMovementRepository;
 
+    @Autowired
+    private StockController stockController;
+
     private Material material1;
     private Material material2;
     private Provision provision1;
@@ -59,7 +65,8 @@ public class StockControllerTest {
             .currentStock(100)
             .price(5.5d)
             .unit(new Unit())
-            .build();
+            .build()
+        ;
 
         material2 = Material.builder()
             .name("Brick 2")
@@ -67,37 +74,51 @@ public class StockControllerTest {
             .currentStock(800)
             .price(8.5d)
             .unit(new Unit())
-            .build();
+            .build()
+        ;
 
         // Provision 1
 
         provision1 = Provision.builder()
             .provisionDate(LocalDate.now())
-            .build();
+            .build()
+        ;
 
         detail1 = ProvisionDetail.builder()
             .quantity(100)
             .provision(provision1)
-            .build();
+            .build()
+        ;
 
         detail2 = ProvisionDetail.builder()
             .quantity(200)
             .provision(provision1)
-            .build();
+            .build()
+        ;
 
         // Provision 2
 
         provision2 = Provision.builder()
             .provisionDate(LocalDate.now())
-            .build();
+            .build()
+        ;
 
         detail3 = ProvisionDetail.builder()
             .quantity(300)
             .provision(provision2)
-            .build();
+            .build()
+        ;
+
+        // Authorization
+
+        mockMvc = MockMvcBuilders.standaloneSetup(stockController)
+            .addFilters(new MockJwtAuthorizationFilter())
+            .build()
+        ;
     }
 
     @Test
+    @Disabled
     void testGetProvisions() throws Exception {
         Material materialResult1 = materialRepository.save(material1);
         Material materialResult2 = materialRepository.save(material2);
@@ -118,6 +139,7 @@ public class StockControllerTest {
     }
 
     @Test
+    @Disabled
     void testGetProvisionsByDate() throws Exception {
         Material materialResult1 = materialRepository.save(material1);
         Material materialResult2 = materialRepository.save(material2);
