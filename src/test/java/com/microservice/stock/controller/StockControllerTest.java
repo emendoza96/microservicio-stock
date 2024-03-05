@@ -1,53 +1,53 @@
 package com.microservice.stock.controller;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.microservice.stock.dao.MaterialRepository;
-import com.microservice.stock.dao.ProvisionRepository;
-import com.microservice.stock.dao.StockMovementRepository;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.microservice.stock.domain.Material;
+import com.microservice.stock.domain.OrderDetail;
 import com.microservice.stock.domain.Provision;
 import com.microservice.stock.domain.ProvisionDetail;
 import com.microservice.stock.domain.StockMovement;
 import com.microservice.stock.domain.Unit;
 import com.microservice.stock.security.filters.MockJwtAuthorizationFilter;
+import com.microservice.stock.service.StockService;
 
-@SpringBootTest
-@AutoConfigureMockMvc
+@ExtendWith(MockitoExtension.class)
 public class StockControllerTest {
+
+    @Mock
+    private StockService stockService;
+
+    @InjectMocks
+    private StockController stockController;
 
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
     private ObjectMapper objectMapper;
-
-    @Autowired
-    private MaterialRepository materialRepository;
-
-    @Autowired
-    private ProvisionRepository provisionRepository;
-
-    @Autowired
-    private StockMovementRepository stockMovementRepository;
-
-    @Autowired
-    private StockController stockController;
 
     private Material material1;
     private Material material2;
@@ -59,6 +59,10 @@ public class StockControllerTest {
 
     @BeforeEach
     void setUp(){
+
+        objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+
         material1 = Material.builder()
             .name("Brick")
             .description("Test description")
@@ -113,144 +117,94 @@ public class StockControllerTest {
 
         mockMvc = MockMvcBuilders.standaloneSetup(stockController)
             .addFilters(new MockJwtAuthorizationFilter())
+            .setMessageConverters(new MappingJackson2HttpMessageConverter())
             .build()
         ;
     }
 
     @Test
-    @Disabled
     void testGetProvisions() throws Exception {
-        Material materialResult1 = materialRepository.save(material1);
-        Material materialResult2 = materialRepository.save(material2);
-        detail1.setMaterial(materialResult1);
-        detail2.setMaterial(materialResult2);
-        detail3.setMaterial(materialResult2);
-        provision1.setDetail(List.of(detail1, detail2));
-        provision2.setDetail(List.of(detail3));
-        provisionRepository.save(provision1);
-        provisionRepository.save(provision2);
 
-        mockMvc.perform(
-            MockMvcRequestBuilders.get("/api/stock/provision")
-            .contentType(MediaType.APPLICATION_JSON)
-        )
-        .andExpect(MockMvcResultMatchers.status().isOk())
-        .andExpect(MockMvcResultMatchers.jsonPath("$.[0].id").isNumber());
-    }
+        when(stockService.getProvisionsByDates(any(), any())).thenReturn(List.of(provision1, provision2));
 
-    @Test
-    @Disabled
-    void testGetProvisionsByDate() throws Exception {
-        Material materialResult1 = materialRepository.save(material1);
-        Material materialResult2 = materialRepository.save(material2);
-        detail1.setMaterial(materialResult1);
-        detail2.setMaterial(materialResult2);
-        detail3.setMaterial(materialResult2);
-        provision1.setDetail(List.of(detail1, detail2));
-        provision2.setDetail(List.of(detail3));
-        provisionRepository.save(provision1);
-        provisionRepository.save(provision2);
-
-        LocalDate startDate = LocalDate.of(2023, 12, 2);
-        LocalDate endDate = LocalDate.of(2025, 12, 2);
-
-        mockMvc.perform(
-            MockMvcRequestBuilders.get(
-                "/api/stock/provision?startDate={startDate}&endDate={endDate}",
-                startDate,
-                endDate
+        ResultActions response = mockMvc.perform(
+                MockMvcRequestBuilders.get("/api/stock/provision")
+                .contentType(MediaType.APPLICATION_JSON)
             )
-            .contentType(MediaType.APPLICATION_JSON)
-        )
-        .andExpect(MockMvcResultMatchers.status().isOk())
-        .andExpect(MockMvcResultMatchers.jsonPath("$.[0].id").isNumber())
-        .andExpect(MockMvcResultMatchers.jsonPath("$.[0].provisionDate").isNotEmpty());
-    }
+        ;
 
-    @Test
-    void testSaveProvision() throws Exception {
-        Provision provision = Provision.builder()
-            .provisionDate(LocalDate.now())
-            .build();
-
-        Material materialResult = materialRepository.save(material1);
-
-        ProvisionDetail detail = ProvisionDetail.builder()
-            .quantity(340)
-            .provision(provision)
-            .material(materialResult)
-            .build();
-
-        provision.setDetail(List.of(detail));
-
-        String provisionJson = objectMapper.writeValueAsString(provision);
-
-        mockMvc.perform(
-            MockMvcRequestBuilders.post("/api/stock/provision")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(provisionJson)
-        )
-        .andExpect(MockMvcResultMatchers.status().isCreated())
-        .andExpect(MockMvcResultMatchers.jsonPath("$.id").isNumber())
-        .andExpect(MockMvcResultMatchers.jsonPath("$.detail.[0].id").isNumber())
-        .andExpect(MockMvcResultMatchers.jsonPath("$.detail.[0].quantity").value(provision.getDetail().get(0).getQuantity()));
+        response.andDo(MockMvcResultHandlers.print())
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
+        ;
     }
 
     @Test
     void testGetStockMovements() throws Exception {
-        Material materialResult1 = materialRepository.save(material1);
-        Material materialResult2 = materialRepository.save(material2);
-        detail1.setMaterial(materialResult1);
-        detail2.setMaterial(materialResult2);
-        detail3.setMaterial(materialResult2);
-        provision1.setDetail(List.of(detail1, detail2));
-        Provision provisionResult = provisionRepository.save(provision1);
-
-        StockMovement movement = StockMovement.builder()
+        when(stockService.getStockMovementsByParams(any(), any(), any())).thenReturn(List.of(StockMovement.builder()
             .date(Instant.now())
             .inputQuantity(300)
-            .provisionDetail(provisionResult.getDetail().get(0))
-            .material(provisionResult.getDetail().get(0).getMaterial())
+            .provisionDetail(detail3)
+            .material(material1)
             .build()
-        ;
+        ));
 
-        stockMovementRepository.save(movement);
-
-        mockMvc.perform(
+        ResultActions response = mockMvc.perform(
             MockMvcRequestBuilders.get("/api/stock/stock-movement")
             .contentType(MediaType.APPLICATION_JSON)
-        )
-        .andExpect(MockMvcResultMatchers.status().isOk())
-        .andExpect(MockMvcResultMatchers.jsonPath("$.[0].id").isNumber());
+        );
+
+        response.andDo(MockMvcResultHandlers.print())
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(1)))
+        ;
+
     }
 
     @Test
-    void testGetStockMovementsByMaterial() throws Exception {
-        Material materialResult1 = materialRepository.save(material1);
-        Material materialResult2 = materialRepository.save(material2);
-        detail1.setMaterial(materialResult1);
-        detail2.setMaterial(materialResult2);
-        detail3.setMaterial(materialResult2);
-        provision1.setDetail(List.of(detail1, detail2));
-        Provision provisionResult = provisionRepository.save(provision1);
+    void testSaveProvision() throws Exception {
+        when(stockService.createProvision(any())).thenReturn(provision1);
 
-        StockMovement movement = StockMovement.builder()
-            .date(Instant.now())
-            .inputQuantity(300)
-            .provisionDetail(provisionResult.getDetail().get(0))
-            .material(provisionResult.getDetail().get(0).getMaterial())
-            .build()
-        ;
+        String jsonResult = objectMapper.writeValueAsString(provision1);
 
-        stockMovementRepository.save(movement);
-
-        mockMvc.perform(
-            MockMvcRequestBuilders.get("/api/stock/stock-movement?material={material}", materialResult1.getName())
+        ResultActions response = mockMvc.perform(
+            MockMvcRequestBuilders.post("/api/stock/provision")
             .contentType(MediaType.APPLICATION_JSON)
-        )
-        .andExpect(MockMvcResultMatchers.status().isOk())
-        .andExpect(MockMvcResultMatchers.jsonPath("$.[0].id").isNumber())
-        .andExpect(MockMvcResultMatchers.jsonPath("$.[0].material.name").value(materialResult1.getName()));
+            .content(jsonResult)
+        );
+
+        response.andDo(MockMvcResultHandlers.print())
+            .andExpect(MockMvcResultMatchers.status().isCreated())
+            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.provisionDate").exists())
+        ;
     }
 
+    @Test
+    void testSaveStockMovementByOrderDetail() throws Exception {
+        when(stockService.createStockMovementByOrderDetail(any())).thenReturn(List.of(StockMovement.builder()
+            .date(Instant.now())
+            .inputQuantity(300)
+            .provisionDetail(detail3)
+            .material(material1)
+            .build()
+        ));
+
+        String jsonResult = objectMapper.writeValueAsString(List.of(new OrderDetail()));
+
+        ResultActions response = mockMvc.perform(
+            MockMvcRequestBuilders.post("/api/stock/stock-movement/order")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(jsonResult)
+        );
+
+        response.andDo(MockMvcResultHandlers.print())
+            .andExpect(MockMvcResultMatchers.status().isCreated())
+            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(1)))
+        ;
+    }
 }
+

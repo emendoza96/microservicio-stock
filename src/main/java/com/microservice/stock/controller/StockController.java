@@ -68,8 +68,6 @@ public class StockController {
 
         try {
             Provision newProvision = stockService.createProvision(provision);
-            stockService.createStockMovementByProvisionDetail(provision.getDetail());
-
             return ResponseEntity.status(201).body(newProvision);
         } catch (Exception e) {
             System.err.println(e.getMessage());

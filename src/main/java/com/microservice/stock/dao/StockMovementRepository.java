@@ -14,7 +14,7 @@ public interface StockMovementRepository extends JpaRepository<StockMovement, In
     @Query(value =
         """
             SELECT
-                *
+                sm.*
             FROM
                 stock_movement sm
             WHERE
