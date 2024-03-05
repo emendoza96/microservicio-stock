@@ -2,6 +2,7 @@ package com.microservice.stock.controller;
 
 
 import org.springframework.http.MediaType;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,6 +60,7 @@ public class MaterialControllerTest {
 
         mockMvc = MockMvcBuilders.standaloneSetup(materialController)
             .addFilters(new MockJwtAuthorizationFilter())
+            .setMessageConverters(new MappingJackson2HttpMessageConverter())
             .build()
         ;
     }
