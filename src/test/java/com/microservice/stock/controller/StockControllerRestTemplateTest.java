@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDate;
 import java.util.List;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,13 +16,14 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.annotation.DirtiesContext;
 
 import com.microservice.stock.dao.MaterialRepository;
-import com.microservice.stock.dao.ProvisionDetailRepository;
 import com.microservice.stock.dao.ProvisionRepository;
 import com.microservice.stock.domain.Material;
 import com.microservice.stock.domain.Provision;
 import com.microservice.stock.domain.ProvisionDetail;
+import com.microservice.stock.domain.StockMovement;
 import com.microservice.stock.domain.Unit;
 import com.microservice.stock.security.jwt.JwtUtils;
 
@@ -38,9 +38,6 @@ public class StockControllerRestTemplateTest {
 
     @Autowired
     private MaterialRepository materialRepository;
-
-    @Autowired
-    private ProvisionDetailRepository provisionDetailRepository;
 
     @Autowired
     private JwtUtils jwtUtils;
@@ -118,6 +115,7 @@ public class StockControllerRestTemplateTest {
     }
 
     @Test
+    @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
     void testSaveProvision() {
         Material materialResult2 = materialRepository.save(material2);
         detail3.setMaterial(materialResult2);
@@ -140,8 +138,37 @@ public class StockControllerRestTemplateTest {
         assertThat(provision.getDetail().get(0).getMaterial().getId()).isEqualTo(provision2.getDetail().get(0).getMaterial().getId());
     }
 
+    @Test
+    @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+    void testStockMovementByProvision() {
+        Material materialResult2 = materialRepository.save(material2);
+        detail3.setMaterial(materialResult2);
+        Provision provisionR = provisionRepository.save(provision2);
+
+        HttpEntity<Provision> entity = new HttpEntity<>(provisionR, headers);
+        ResponseEntity<StockMovement[]> response = restTemplate.exchange(
+            "/api/stock/stock-movement/provision",
+            HttpMethod.POST,
+            entity,
+            StockMovement[].class
+        );
+
+        //then
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        assertThat(response.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+
+        List<StockMovement> movements = List.of(response.getBody());
+        assertThat(movements.size()).isEqualTo(provisionR.getDetail().size());
+        assertThat(movements.get(0).getInputQuantity()).isEqualTo(provisionR.getDetail().get(0).getQuantity());
+        assertThat(movements.get(0).getMaterial().getCurrentStock()).isEqualTo(
+            provisionR.getDetail().get(0).getMaterial().getCurrentStock()
+            + provisionR.getDetail().get(0).getQuantity()
+        );
+
+    }
 
     @Test
+    @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
     void testGetProvisions() {
         Material materialResult1 = materialRepository.save(material1);
         Material materialResult2 = materialRepository.save(material2);
@@ -168,6 +195,7 @@ public class StockControllerRestTemplateTest {
     }
 
     @Test
+    @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
     void testGetProvisionsByDate() {
         Material materialResult1 = materialRepository.save(material1);
         Material materialResult2 = materialRepository.save(material2);
@@ -198,10 +226,4 @@ public class StockControllerRestTemplateTest {
         assertThat(provisions.size()).isEqualTo(1);
     }
 
-    @AfterEach
-    void clearDB() {
-        provisionRepository.deleteAll();
-        materialRepository.deleteAll();
-        provisionDetailRepository.deleteAll();
-    }
 }

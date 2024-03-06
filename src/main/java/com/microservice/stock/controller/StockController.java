@@ -137,12 +137,8 @@ public class StockController {
     public ResponseEntity<?> saveStockMovementByProvision(@RequestBody Provision provision) {
 
         try {
-            System.err.println("DEBUGGGGGGGGGGGG");
 
             List<StockMovement> stockMovements = stockService.createStockMovementByProvisionDetail(provision.getDetail());
-
-            System.err.println(stockMovements);
-
 
             return ResponseEntity.status(201).body(stockMovements);
         } catch (Exception e) {

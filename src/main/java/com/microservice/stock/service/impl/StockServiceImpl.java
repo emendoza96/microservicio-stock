@@ -101,7 +101,19 @@ public class StockServiceImpl implements StockService {
         List<StockMovement> stockMovements = new ArrayList<>();
 
         for(ProvisionDetail provisionDetail : provisionDetails) {
-            StockMovement movement = new StockMovement(provisionDetail.getQuantity(), 0, Instant.now(), provisionDetail.getMaterial());
+            Material material = materialService.getMaterialById(provisionDetail.getMaterial().getId()).get();
+            material.setCurrentStock(material.getCurrentStock() + provisionDetail.getQuantity());
+
+            // Update stock
+            material = materialService.createMaterial(material);
+
+            StockMovement movement = StockMovement.builder()
+                .date(Instant.now())
+                .inputQuantity(provisionDetail.getQuantity())
+                .material(material)
+                .build()
+            ;
+
             movement.setProvisionDetail(provisionDetail);
             stockMovements.add(movement);
         }
