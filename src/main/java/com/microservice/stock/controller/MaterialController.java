@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.microservice.stock.domain.Material;
+import com.microservice.stock.error.ErrorDetails;
+import com.microservice.stock.error.ErrorResponse;
 import com.microservice.stock.service.MaterialService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -42,14 +45,16 @@ public class MaterialController {
         @ApiResponse(responseCode = "403", description = "Forbidden"),
         @ApiResponse(responseCode = "404", description = "Materials not found"),
     })
-    public ResponseEntity<List<Material>> getAllMaterials() {
+    public ResponseEntity<?> getAllMaterials() {
 
         try {
             List<Material> materials = materialService.getAllMaterials();
-            return ResponseEntity.status(200).body(materials);
+            return ResponseEntity.ok().body(materials);
         } catch (Exception e) {
-            System.err.println(e.getMessage());
-            return ResponseEntity.badRequest().build();
+            ErrorDetails errorDetails = new ErrorDetails();
+            errorDetails.setCode(HttpStatus.BAD_REQUEST.value());
+            errorDetails.setMessage(e.getMessage());
+            return ResponseEntity.badRequest().body(new ErrorResponse(errorDetails));
         }
     }
 
@@ -62,19 +67,18 @@ public class MaterialController {
         @ApiResponse(responseCode = "403", description = "Forbidden"),
         @ApiResponse(responseCode = "404", description = "Material not found"),
     })
-    public ResponseEntity<Material> getMaterial(@PathVariable Integer id) {
+    public ResponseEntity<?> getMaterial(@PathVariable Integer id) {
 
         try {
             Material material = materialService.getMaterialById(id).orElseThrow();
-            return ResponseEntity.status(200).body(material);
-        }
-        catch (NoSuchElementException e) {
-            System.err.println(e.getMessage());
-            return ResponseEntity.status(404).build();
-        }
-        catch (Exception e) {
-            System.err.println(e.getMessage());
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.ok().body(material);
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            ErrorDetails errorDetails = new ErrorDetails();
+            errorDetails.setCode(HttpStatus.BAD_REQUEST.value());
+            errorDetails.setMessage(e.getMessage());
+            return ResponseEntity.badRequest().body(new ErrorResponse(errorDetails));
         }
 
     }
@@ -87,15 +91,16 @@ public class MaterialController {
         @ApiResponse(responseCode = "401", description = "Not authorized"),
         @ApiResponse(responseCode = "403", description = "Forbidden"),
     })
-    public ResponseEntity<Material> saveMaterial(@RequestBody Material material) {
+    public ResponseEntity<?> saveMaterial(@RequestBody Material material) {
 
         try {
             Material newMaterial = materialService.createMaterial(material);
             return ResponseEntity.status(201).body(newMaterial);
-        }
-        catch (Exception e) {
-            System.err.println(e.getMessage());
-            return ResponseEntity.badRequest().build();
+        } catch (Exception e) {
+            ErrorDetails errorDetails = new ErrorDetails();
+            errorDetails.setCode(HttpStatus.BAD_REQUEST.value());
+            errorDetails.setMessage(e.getMessage());
+            return ResponseEntity.badRequest().body(new ErrorResponse(errorDetails));
         }
     }
 
@@ -108,7 +113,7 @@ public class MaterialController {
         @ApiResponse(responseCode = "403", description = "Forbidden"),
         @ApiResponse(responseCode = "404", description = "Material not found"),
     })
-    public ResponseEntity<Material> editMaterial(@PathVariable Integer id, @RequestBody Material material) {
+    public ResponseEntity<?> editMaterial(@PathVariable Integer id, @RequestBody Material material) {
 
         try {
             materialService.getMaterialById(id).orElseThrow();
@@ -116,41 +121,39 @@ public class MaterialController {
 
             Material materialResult = materialService.createMaterial(material);
             return ResponseEntity.status(200).body(materialResult);
-        }
-        catch (NoSuchElementException e) {
-            System.err.println(e.getMessage());
-            return ResponseEntity.status(404).build();
-        }
-        catch (Exception e) {
-            System.err.println(e.getMessage());
-            return ResponseEntity.badRequest().build();
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            ErrorDetails errorDetails = new ErrorDetails();
+            errorDetails.setCode(HttpStatus.BAD_REQUEST.value());
+            errorDetails.setMessage(e.getMessage());
+            return ResponseEntity.badRequest().body(new ErrorResponse(errorDetails));
         }
 
     }
 
 
-    @Operation(summary = "Delete Material by id")
+    @Operation(summary = "Disable Material by id")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Material successfully deleted"),
+        @ApiResponse(responseCode = "200", description = "Material successfully disabled"),
         @ApiResponse(responseCode = "401", description = "Not authorized"),
         @ApiResponse(responseCode = "403", description = "Forbidden"),
         @ApiResponse(responseCode = "404", description = "Material not found"),
     })
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Material> deleteMaterial(@PathVariable Integer id) {
+    @DeleteMapping("/disable/{id}")
+    public ResponseEntity<?> disableMaterial(@PathVariable Integer id) {
 
         try {
             Material material = materialService.getMaterialById(id).orElseThrow();
             material = materialService.disableMaterial(material);
-            return ResponseEntity.status(200).body(material);
-        }
-        catch (NoSuchElementException e) {
-            System.err.println(e.getMessage());
-            return ResponseEntity.status(404).build();
-        }
-        catch (Exception e) {
-            System.err.println(e.getMessage());
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.ok().body(material);
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            ErrorDetails errorDetails = new ErrorDetails();
+            errorDetails.setCode(HttpStatus.BAD_REQUEST.value());
+            errorDetails.setMessage(e.getMessage());
+            return ResponseEntity.badRequest().body(new ErrorResponse(errorDetails));
         }
     }
 

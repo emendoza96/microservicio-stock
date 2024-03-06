@@ -135,7 +135,7 @@ public class MaterialControllerTest {
         materialRepository.save(material2);
 
         mockMvc.perform(
-            MockMvcRequestBuilders.delete("/api/material/delete/{id}", material_id)
+            MockMvcRequestBuilders.delete("/api/material/disable/{id}", material_id)
             .contentType(MediaType.APPLICATION_JSON)
         )
         .andExpect(MockMvcResultMatchers.status().isOk())
