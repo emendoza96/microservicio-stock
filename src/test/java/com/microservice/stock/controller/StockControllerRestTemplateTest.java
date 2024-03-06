@@ -19,6 +19,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
 import com.microservice.stock.dao.MaterialRepository;
+import com.microservice.stock.dao.ProvisionDetailRepository;
 import com.microservice.stock.dao.ProvisionRepository;
 import com.microservice.stock.domain.Material;
 import com.microservice.stock.domain.Provision;
@@ -37,6 +38,9 @@ public class StockControllerRestTemplateTest {
 
     @Autowired
     private MaterialRepository materialRepository;
+
+    @Autowired
+    private ProvisionDetailRepository provisionDetailRepository;
 
     @Autowired
     private JwtUtils jwtUtils;
@@ -95,6 +99,8 @@ public class StockControllerRestTemplateTest {
             .build()
         ;
 
+        provision1.setDetail(List.of(detail1, detail2));
+
         // Provision 2
 
         provision2 = Provision.builder()
@@ -107,7 +113,33 @@ public class StockControllerRestTemplateTest {
             .provision(provision2)
             .build()
         ;
+
+        provision2.setDetail(List.of(detail3));
     }
+
+    @Test
+    void testSaveProvision() {
+        Material materialResult2 = materialRepository.save(material2);
+        detail3.setMaterial(materialResult2);
+
+        HttpEntity<Provision> entity = new HttpEntity<>(provision2, headers);
+        ResponseEntity<Provision> response = restTemplate.exchange(
+            "/api/stock/provision",
+            HttpMethod.POST,
+            entity,
+            Provision.class
+        );
+
+        //then
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        assertThat(response.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+
+        Provision provision = response.getBody();
+        assertThat(provision.getProvisionDate()).isEqualTo(provision2.getProvisionDate());
+        assertThat(provision.getDetail().get(0).getQuantity()).isEqualTo(provision2.getDetail().get(0).getQuantity());
+        assertThat(provision.getDetail().get(0).getMaterial().getId()).isEqualTo(provision2.getDetail().get(0).getMaterial().getId());
+    }
+
 
     @Test
     void testGetProvisions() {
@@ -116,8 +148,6 @@ public class StockControllerRestTemplateTest {
         detail1.setMaterial(materialResult1);
         detail2.setMaterial(materialResult2);
         detail3.setMaterial(materialResult2);
-        provision1.setDetail(List.of(detail1, detail2));
-        provision2.setDetail(List.of(detail3));
         provisionRepository.save(provision1);
         provisionRepository.save(provision2);
 
@@ -137,7 +167,6 @@ public class StockControllerRestTemplateTest {
         assertThat(provisions.size()).isEqualTo(2);
     }
 
-
     @Test
     void testGetProvisionsByDate() {
         Material materialResult1 = materialRepository.save(material1);
@@ -145,8 +174,6 @@ public class StockControllerRestTemplateTest {
         detail1.setMaterial(materialResult1);
         detail2.setMaterial(materialResult2);
         detail3.setMaterial(materialResult2);
-        provision1.setDetail(List.of(detail1, detail2));
-        provision2.setDetail(List.of(detail3));
         provisionRepository.save(provision1);
         provisionRepository.save(provision2);
 
@@ -175,5 +202,6 @@ public class StockControllerRestTemplateTest {
     void clearDB() {
         provisionRepository.deleteAll();
         materialRepository.deleteAll();
+        provisionDetailRepository.deleteAll();
     }
 }

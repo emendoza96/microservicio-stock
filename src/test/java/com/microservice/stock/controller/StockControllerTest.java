@@ -100,6 +100,8 @@ public class StockControllerTest {
             .build()
         ;
 
+        provision1.setDetail(List.of(detail1, detail2));
+
         // Provision 2
 
         provision2 = Provision.builder()
@@ -112,6 +114,8 @@ public class StockControllerTest {
             .provision(provision2)
             .build()
         ;
+
+        provision2.setDetail(List.of(detail3));
 
         // Authorization
 
@@ -188,7 +192,7 @@ public class StockControllerTest {
             .date(Instant.now())
             .inputQuantity(300)
             .provisionDetail(detail3)
-            .material(material1)
+            .material(material2)
             .build()
         ));
 
