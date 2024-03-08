@@ -174,5 +174,12 @@ public class StockServiceImpl implements StockService {
         stockMovementRepository.saveAll(stockMovements);
     }
 
+    @Override
+    public Boolean checkMaterialStock(Integer idMaterial, Integer quantity) {
+        Material material = materialService.getMaterialById(idMaterial).get();
+
+        return material.getCurrentStock() - quantity > 0;
+    }
+
 
 }

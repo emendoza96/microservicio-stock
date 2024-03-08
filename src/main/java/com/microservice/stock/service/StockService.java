@@ -20,5 +20,6 @@ public interface StockService {
     public Boolean validateProvision(Provision provision);
     public void createProvisionByOrderEvent(List<OrderEventHelper> orderDetails);
     public void updateStock(List<OrderEventHelper> orderDetails);
+    public Boolean checkMaterialStock(Integer idMaterial, Integer quantity);
 
 }

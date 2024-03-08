@@ -8,6 +8,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -149,5 +150,22 @@ public class StockController {
         }
 
     }
+
+    @GetMapping("/check/{id}")
+    public ResponseEntity<?> checkStock(@PathVariable Integer id, @RequestParam Integer quantity) {
+
+        try {
+            Boolean hasStock = stockService.checkMaterialStock(id, quantity);
+
+            return ResponseEntity.ok().body(hasStock);
+        } catch (Exception e) {
+            ErrorDetails errorDetails = new ErrorDetails();
+            errorDetails.setCode(HttpStatus.BAD_REQUEST.value());
+            errorDetails.setMessage(e.getMessage());
+            return ResponseEntity.badRequest().body(new ErrorResponse(errorDetails));
+        }
+
+    }
+
 
 }
