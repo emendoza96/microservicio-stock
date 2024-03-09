@@ -1,6 +1,6 @@
-package com.microservice.stock.helpers;
+package com.microservice.stock.dto;
 
-public class OrderEventHelper {
+public class OrderDetailsDTO {
 
     Integer idOrder;
     Integer idDetail;
@@ -8,10 +8,10 @@ public class OrderEventHelper {
     Double price;
     Integer idMaterial;
 
-    public OrderEventHelper() {
+    public OrderDetailsDTO() {
     }
 
-    public OrderEventHelper(Integer idOrder, Integer idDetail, Integer quantity, Double price, Integer idMaterial) {
+    public OrderDetailsDTO(Integer idOrder, Integer idDetail, Integer quantity, Double price, Integer idMaterial) {
         this.idOrder = idOrder;
         this.idDetail = idDetail;
         this.quantity = quantity;

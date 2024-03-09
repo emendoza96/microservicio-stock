@@ -18,7 +18,8 @@ import com.microservice.stock.domain.OrderDetail;
 import com.microservice.stock.domain.Provision;
 import com.microservice.stock.domain.ProvisionDetail;
 import com.microservice.stock.domain.StockMovement;
-import com.microservice.stock.helpers.OrderEventHelper;
+import com.microservice.stock.dto.OrderDetailsDTO;
+import com.microservice.stock.helpers.StockAvailability;
 import com.microservice.stock.service.MaterialService;
 import com.microservice.stock.service.StockService;
 
@@ -122,11 +123,11 @@ public class StockServiceImpl implements StockService {
     }
 
     @Override
-    public void createProvisionByOrderEvent(List<OrderEventHelper> orderDetails) {
+    public void createProvisionByOrderEvent(List<OrderDetailsDTO> orderDetails) {
         List<ProvisionDetail> provisionDetails = new ArrayList<>();
         Provision provision = new Provision();
 
-        for(OrderEventHelper detail : orderDetails) {
+        for(OrderDetailsDTO detail : orderDetails) {
             if (!materialService.checkMaterialHasStockMin(detail.getIdMaterial())){
                 ProvisionDetail provisionDetail = new ProvisionDetail();
                 provisionDetail.setMaterial(materialService.getMaterialById(detail.getIdMaterial()).get());
@@ -149,10 +150,10 @@ public class StockServiceImpl implements StockService {
     }
 
     @Override
-    public void updateStock(List<OrderEventHelper> orderDetails) {
+    public void updateStock(List<OrderDetailsDTO> orderDetails) {
         List<StockMovement> stockMovements = new ArrayList<>();
 
-        for(OrderEventHelper detail : orderDetails) {
+        for(OrderDetailsDTO detail : orderDetails) {
             OrderDetail orderDetail = orderDetailRepository.findById(detail.getIdDetail()).get();
             Material material = materialService.getMaterialById(detail.getIdMaterial()).get();
 
@@ -179,6 +180,23 @@ public class StockServiceImpl implements StockService {
         Material material = materialService.getMaterialById(idMaterial).get();
 
         return material.getCurrentStock() - quantity > 0;
+    }
+
+    @Override
+    public StockAvailability checkMaterialStocks(List<OrderDetailsDTO> orderDetails) {
+        StockAvailability stockAvailability = new StockAvailability();
+
+        for(OrderDetailsDTO orderDetail : orderDetails){
+
+            Material material = materialService.getMaterialById(orderDetail.getIdMaterial()).get();
+
+            if (material.getCurrentStock() < orderDetail.getQuantity()) {
+                stockAvailability.getDetails().put(material.getName(), "Missing stock");
+            }
+
+        }
+
+        return stockAvailability;
     }
 
 

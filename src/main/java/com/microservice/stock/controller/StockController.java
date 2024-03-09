@@ -16,8 +16,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.microservice.stock.domain.OrderDetail;
 import com.microservice.stock.domain.Provision;
 import com.microservice.stock.domain.StockMovement;
+import com.microservice.stock.dto.OrderDetailsDTO;
 import com.microservice.stock.error.ErrorDetails;
 import com.microservice.stock.error.ErrorResponse;
+import com.microservice.stock.helpers.StockAvailability;
 import com.microservice.stock.service.StockService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -167,5 +169,25 @@ public class StockController {
 
     }
 
+    @GetMapping("/availability")
+    public ResponseEntity<?> stockAvailability(@RequestBody List<OrderDetailsDTO> orderDetailsDTO) {
 
+        try {
+            StockAvailability stockAvailability = stockService.checkMaterialStocks(orderDetailsDTO);
+
+            if (!stockAvailability.getDetails().isEmpty()) {
+                stockAvailability.setAvailability(false);
+                return ResponseEntity.ok().body(stockAvailability);
+            }
+
+            stockAvailability.setAvailability(true);
+            return ResponseEntity.ok().body(stockAvailability);
+        } catch (Exception e) {
+            ErrorDetails errorDetails = new ErrorDetails();
+            errorDetails.setCode(HttpStatus.BAD_REQUEST.value());
+            errorDetails.setMessage(e.getMessage());
+            return ResponseEntity.badRequest().body(new ErrorResponse(errorDetails));
+        }
+
+    }
 }

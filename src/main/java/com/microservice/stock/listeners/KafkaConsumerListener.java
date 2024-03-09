@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.KafkaListener;
 
-import com.microservice.stock.helpers.OrderEventHelper;
+import com.microservice.stock.dto.OrderDetailsDTO;
 import com.microservice.stock.service.StockService;
 import com.microservice.stock.util.JsonUtils;
 
@@ -23,9 +23,9 @@ public class KafkaConsumerListener {
 
     @KafkaListener(topics = {"builder-yard-orders"}, groupId = "stock-service")
     public void listener(String message){
-        OrderEventHelper[] orderDetails0 = JsonUtils.fromJson(message, OrderEventHelper[].class);
+        OrderDetailsDTO[] orderDetails0 = JsonUtils.fromJson(message, OrderDetailsDTO[].class);
 
-        List<OrderEventHelper> orderDetails = Arrays.asList(orderDetails0);
+        List<OrderDetailsDTO> orderDetails = Arrays.asList(orderDetails0);
 
         LOGGER.info("New message received: {}", orderDetails.toString());
 
