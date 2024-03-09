@@ -169,7 +169,7 @@ public class StockController {
 
     }
 
-    @GetMapping("/availability")
+    @PostMapping("/availability")
     public ResponseEntity<?> stockAvailability(@RequestBody List<OrderDetailsDTO> orderDetailsDTO) {
 
         try {
